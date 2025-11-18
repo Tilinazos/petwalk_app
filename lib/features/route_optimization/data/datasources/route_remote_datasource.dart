@@ -13,51 +13,40 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
   RouteRemoteDataSourceImpl({required this.client});
 
   @override
-Future<RouteEntity> getOptimizedRoute(RouteParams params) async {
-  // ✅ LOG: Ver qué se está enviando
-  final requestBody = {
-    'start_lat': params.startLat,
-    'start_lon': params.startLon,
-    'max_time_minutes': params.maxTimeMinutes,
-    'is_cycle': true,
-    'walking_pace': params.walkingPace,
-  };
-  
-  print('🔵 REQUEST A API:');
-  print(json.encode(requestBody));
-  
-  final response = await client.post(
-    Uri.parse('http://10.0.2.2:8000/v1/routes/optimize'), 
-    headers: {'Content-Type': 'application/json'},
-    body: json.encode(requestBody),
-  );
-
-  // ✅ LOG: Ver qué responde la API
-  print('🟢 RESPONSE STATUS: ${response.statusCode}');
-  print('🟢 RESPONSE BODY: ${response.body}');
-
-  if (response.statusCode == 200) {
-    final jsonResponse = json.decode(response.body);
+  Future<RouteEntity> getOptimizedRoute(RouteParams params) async {
+    final requestBody = {
+      'start_lat': params.startLat,
+      'start_lon': params.startLon,
+      'max_time_minutes': params.maxTimeMinutes,
+      'is_cycle': params.isCycle,
+      'walking_pace': params.walkingPace,
+    };
     
-    return RouteEntity(
-      route: (jsonResponse['route'] as List)
-          .map((i) => Coordinate(
-                lat: i['lat'].toDouble(), 
-                lon: i['lon'].toDouble(),
-              ))
-          .toList(),
-      totalQuality: jsonResponse['total_quality'].toDouble(),
-      totalTimeMinutes: jsonResponse['total_time_minutes'].toDouble(),
-      distanceKm: jsonResponse['distance_km'].toDouble(),
-      message: jsonResponse['message'] as String?,
+    final response = await client.post(
+      Uri.parse('http://10.0.2.2:8000/api/v1/routes/optimize'), 
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(requestBody),
     );
-  } else if (response.statusCode == 404) {
-     // ✅ LOG: Capturar el mensaje de error completo
-     print('🔴 ERROR 404: ${response.body}');
-     throw Exception('404: Ruta no encontrada para los parámetros dados.');
-  } else {
-    print('🔴 ERROR ${response.statusCode}: ${response.body}');
-    throw Exception('Fallo al cargar los datos del servidor. Status: ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      
+      return RouteEntity(
+        route: (jsonResponse['route'] as List)
+            .map((i) => Coordinate(
+                  lat: (i['lat'] as num).toDouble(),
+                  lon: (i['lon'] as num).toDouble(), 
+                ))
+            .toList(),
+        totalQuality: (jsonResponse['total_quality'] as num).toDouble(),
+        totalTimeMinutes: (jsonResponse['total_time_minutes'] as num).toDouble(),
+        distanceKm: (jsonResponse['distance_km'] as num).toDouble(),
+        message: jsonResponse['message'] as String?,
+      );
+    } else if (response.statusCode == 404) {
+      throw Exception('404: Ruta no encontrada para los parámetros dados.');
+    } else {
+      throw Exception('Fallo al cargar los datos del servidor. Status: ${response.statusCode}');
+    }
   }
-}
 }
