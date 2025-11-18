@@ -8,7 +8,6 @@ class GetOptimizedRoute {
 
   GetOptimizedRoute(this.repository);
 
-  // El método call permite ejecutar la clase como una función: GetOptimizedRoute(repo)(params)
   Future<Either<Failure, RouteEntity>> call(RouteParams params) async {
     return await repository.getOptimizedRoute(params);
   }
@@ -19,12 +18,13 @@ class RouteParams {
   final double startLon;
   final int maxTimeMinutes;
   final String walkingPace;
+  final bool isCycle;
   
-  // Incluye todos los parámetros de tu FastAPI OptimizationRequest
   RouteParams({
     required this.startLat,
     required this.startLon,
     required this.maxTimeMinutes,
     required this.walkingPace,
+    required this.isCycle,
   });
 }
