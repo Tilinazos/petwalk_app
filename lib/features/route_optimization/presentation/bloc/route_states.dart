@@ -7,13 +7,10 @@ abstract class RouteState extends Equatable {
   List<Object> get props => [];
 }
 
-/// 1. Estado Inicial: Cuando la pantalla se carga por primera vez.
 class RouteInitial extends RouteState {}
 
-/// 2. Estado de Carga: Muestra un spinner mientras la API de FastAPI calcula la ruta.
 class RouteLoading extends RouteState {}
 
-/// 3. Estado Exitoso: El algoritmo devolvió la ruta óptima.
 class RouteLoaded extends RouteState {
   final RouteEntity route;
 
@@ -23,7 +20,6 @@ class RouteLoaded extends RouteState {
   List<Object> get props => [route];
 }
 
-/// 4. Estado de Error: Falló la conexión o el algoritmo no encontró una ruta válida (404).
 class RouteError extends RouteState {
   final String message;
 
