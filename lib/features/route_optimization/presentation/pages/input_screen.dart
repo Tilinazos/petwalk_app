@@ -1,4 +1,3 @@
-// features/route_optimization/presentation/pages/input_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -8,11 +7,10 @@ import '../../domain/usecases/get_optimized_route.dart';
 import '../bloc/route_bloc.dart';
 import '../bloc/route_events.dart';
 
-// Clase para almacenar los datos de entrada del usuario
 class InputData {
-  double lat = -12.1115; // Coordenada de inicio por defecto (Lima)
+  double lat = -12.1115;
   double lon = -77.0305;
-  int timeMinutes = 60; // 60 minutos por defecto
+  int timeMinutes = 60;
   bool isCycle = true;
   String walkingPace = 'ligero';
 }
@@ -29,7 +27,6 @@ class _InputScreenState extends State<InputScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final MapController _mapController = MapController();
   
-  // Posición actual del marcador
   late LatLng _markerPosition;
 
   @override
@@ -38,36 +35,32 @@ class _InputScreenState extends State<InputScreen> {
     _markerPosition = LatLng(_data.lat, _data.lon);
   }
 
-  void _planRoute() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+void _planRoute() {
+  if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
 
-      // Actualizar las coordenadas con la posición actual del marcador
-      _data.lat = _markerPosition.latitude;
-      _data.lon = _markerPosition.longitude;
+    _data.lat = _markerPosition.latitude;
+    _data.lon = _markerPosition.longitude;
 
-      // Disparar el evento al BLoC con los parámetros del usuario
-      final params = RouteParams(
-        startLat: _data.lat,
-        startLon: _data.lon,
-        maxTimeMinutes: _data.timeMinutes,
-        walkingPace: _data.walkingPace,
-      );
+    final params = RouteParams(
+      startLat: _data.lat,
+      startLon: _data.lon,
+      maxTimeMinutes: _data.timeMinutes,
+      walkingPace: _data.walkingPace,
+      isCycle: _data.isCycle,
+    );
 
-      // Usamos BlocProvider.of para acceder al BLoC
-      BlocProvider.of<RouteBloc>(context).add(GetOptimizedRouteEvent(params: params));
-    }
+    BlocProvider.of<RouteBloc>(context).add(GetOptimizedRouteEvent(params: params));
   }
+}
 
   void _useCurrentLocation() {
-    // Por ahora usa la ubicación por defecto
     setState(() {
       _markerPosition = LatLng(-12.1115, -77.0305);
       _data.lat = -12.1115;
       _data.lon = -77.0305;
     });
     
-    // Centrar el mapa en la nueva posición
     _mapController.move(_markerPosition, 15.0);
     
     ScaffoldMessenger.of(context).showSnackBar(
@@ -79,7 +72,6 @@ class _InputScreenState extends State<InputScreen> {
   }
 
   void _onMapTap(TapPosition tapPosition, LatLng position) {
-    // Actualizar la posición del marcador cuando se toca el mapa
     setState(() {
       _markerPosition = position;
       _data.lat = position.latitude;
