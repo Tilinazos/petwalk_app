@@ -1,4 +1,3 @@
-// features/route_optimization/presentation/pages/result_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -26,7 +25,6 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   void initState() {
     super.initState();
-    // Ajustar la cámara después de que se renderice el widget
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fitMapToRoute();
     });
@@ -42,7 +40,7 @@ class _ResultScreenState extends State<ResultScreen> {
             top: 50,
             left: 50,
             right: 50,
-            bottom: 300, // Espacio para el panel de métricas
+            bottom: 300,
           ),
           maxZoom: 16.0,
         ),
@@ -60,7 +58,6 @@ class _ResultScreenState extends State<ResultScreen> {
         ? routePoints.last 
         : startPoint;
 
-    // Verificar si es una ruta circular
     final bool isCycle = startPoint.latitude == endPoint.latitude &&
         startPoint.longitude == endPoint.longitude;
 
@@ -69,13 +66,11 @@ class _ResultScreenState extends State<ResultScreen> {
         title: const Text('🐾 Ruta de Máxima Calidad'),
         backgroundColor: Colors.green,
         actions: [
-          // Botón para centrar el mapa
           IconButton(
             icon: const Icon(Icons.center_focus_strong),
             tooltip: 'Centrar ruta',
             onPressed: _fitMapToRoute,
           ),
-          // Botón para mostrar/ocultar métricas
           IconButton(
             icon: Icon(_showMetrics ? Icons.expand_more : Icons.expand_less),
             tooltip: _showMetrics ? 'Ocultar métricas' : 'Mostrar métricas',
@@ -105,7 +100,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 userAgentPackageName: 'com.example.petwalkapp',
               ),
 
-              // 2. Capa de Polilínea (La Ruta Optimizada) 🎯
+              // 2. Capa de Polilínea (La Ruta Optimizada)
               PolylineLayer(
                 polylines: [
                   Polyline(
