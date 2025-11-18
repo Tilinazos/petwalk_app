@@ -12,22 +12,32 @@ class RouteRepositoryImpl implements RouteRepository {
   RouteRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, RouteEntity>> getOptimizedRoute(RouteParams params) async {
-    try {
-      // 1. Llamar a la fuente de datos (la API de FastAPI)
-      final routeModel = await remoteDataSource.getOptimizedRoute(params);
-      
-      // 2. Si la llamada es exitosa, retornar el resultado
-      return Right(routeModel); // Right indica éxito, conteniendo la entidad
-    } on Exception catch (e) {
-      // 3. Manejar errores y convertirlos a Fallos de la aplicación
-      if (e.toString().contains('404')) {
-        return Left(NotFoundFailure(message: e.toString()));
-      }
-      if (e.toString().contains('Fallo')) {
-        return Left(ServerFailure(message: e.toString()));
-      }
-      return Left(UnknownFailure(message: e.toString()));
+Future<Either<Failure, RouteEntity>> getOptimizedRoute(RouteParams params) async {
+  try {
+    final routeModel = await remoteDataSource.getOptimizedRoute(params);
+    return Right(routeModel);
+  } on Exception catch (e) {
+    final errorMessage = e.toString();
+    
+    if (errorMessage.contains('404')) {
+      return Left(NotFoundFailure(
+        message: "No se encontró una ruta que cumpla con su tiempo y calidad. Intente un tiempo mayor."
+      ));
     }
+    if (errorMessage.contains('SocketException') || errorMessage.contains('Failed host lookup')) {
+      return Left(ServerFailure(
+        message: "Error de conexión: Verifique su conexión a internet y que el servidor esté activo."
+      ));
+    }
+    if (errorMessage.contains('Status:')) {
+      return Left(ServerFailure(
+        message: "Error del servidor: $errorMessage"
+      ));
+    }
+    
+    return Left(UnknownFailure(
+      message: "Error inesperado: $errorMessage"
+    ));
   }
+}
 }
