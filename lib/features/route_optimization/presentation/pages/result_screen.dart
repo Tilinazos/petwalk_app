@@ -48,6 +48,14 @@ class _ResultScreenState extends State<ResultScreen> {
     }
   }
 
+  void _zoomIn() {
+    _mapController.move(_mapController.camera.center, _mapController.camera.zoom + 1);
+  }
+
+  void _zoomOut() {
+    _mapController.move(_mapController.camera.center, _mapController.camera.zoom - 1);
+  }
+
   @override
   Widget build(BuildContext context) {
     final routePoints = _routePoints;
@@ -62,27 +70,8 @@ class _ResultScreenState extends State<ResultScreen> {
         startPoint.longitude == endPoint.longitude;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('🐾 Ruta de Máxima Calidad'),
-        backgroundColor: Colors.green,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.center_focus_strong),
-            tooltip: 'Centrar ruta',
-            onPressed: _fitMapToRoute,
-          ),
-          IconButton(
-            icon: Icon(_showMetrics ? Icons.expand_more : Icons.expand_less),
-            tooltip: _showMetrics ? 'Ocultar métricas' : 'Mostrar métricas',
-            onPressed: () {
-              setState(() {
-                _showMetrics = !_showMetrics;
-              });
-            },
-          ),
-        ],
-      ),
-      body: Stack(
+      body: SafeArea(
+        child: Stack(
         children: <Widget>[
           // === MAPA CON LA RUTA ===
           FlutterMap(
@@ -208,10 +197,34 @@ class _ResultScreenState extends State<ResultScreen> {
             ],
           ),
 
+          // === BOTÓN DE REGRESO (Esquina superior izquierda) ===
+          Positioned(
+            top: 8,
+            left: 8,
+            child: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.arrow_back, color: Colors.black87),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+
           // === CONTADOR DE PUNTOS (Esquina superior izquierda) ===
           Positioned(
             top: 16,
-            left: 16,
+            left: 60,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
@@ -239,6 +252,16 @@ class _ResultScreenState extends State<ResultScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+
+          // === CONTROLES DE ZOOM ===
+          Positioned(
+            top: 16,
+            right: 16,
+            child: _ZoomControls(
+              onZoomIn: _zoomIn,
+              onZoomOut: _zoomOut,
             ),
           ),
 
@@ -326,12 +349,7 @@ class _ResultScreenState extends State<ResultScreen> {
                     const Divider(height: 20),
 
                     // Métricas principales
-                    _MetricRow(
-                      icon: Icons.star,
-                      iconColor: Colors.amber,
-                      label: 'Calidad Total',
-                      value: '${widget.route.totalQuality.toStringAsFixed(1)} pts',
-                    ),
+
                     _MetricRow(
                       icon: Icons.timer,
                       iconColor: Colors.blue,
@@ -345,13 +363,10 @@ class _ResultScreenState extends State<ResultScreen> {
                       value: '${widget.route.distanceKm.toStringAsFixed(2)} km',
                     ),
 
-                    // Velocidad promedio calculada
-                    _MetricRow(
-                      icon: Icons.speed,
-                      iconColor: Colors.orange,
-                      label: 'Velocidad Promedio',
-                      value: '${((widget.route.distanceKm / widget.route.totalTimeMinutes) * 60).toStringAsFixed(1)} km/h',
-                    ),
+
+
+                    // Mensaje del algoritmo
+
 
                     // Mensaje del algoritmo
                     if (widget.route.message != null &&
@@ -398,7 +413,10 @@ class _ResultScreenState extends State<ResultScreen> {
                       children: [
                         Expanded(
                           child: OutlinedButton.icon(
-                            onPressed: () => Navigator.of(context).pop(),
+                            onPressed: () {
+                              // Regresar a la primera pantalla (selección de ubicación)
+                              Navigator.of(context).popUntil((route) => route.isFirst);
+                            },
                             icon: const Icon(Icons.edit_location),
                             label: const Text('Nueva Ruta'),
                             style: OutlinedButton.styleFrom(
@@ -440,6 +458,7 @@ class _ResultScreenState extends State<ResultScreen> {
               ),
             ),
         ],
+        ),
       ),
     );
   }
@@ -490,6 +509,87 @@ class _MetricRow extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Widget para los controles de zoom
+class _ZoomControls extends StatelessWidget {
+  final VoidCallback onZoomIn;
+  final VoidCallback onZoomOut;
+
+  const _ZoomControls({
+    required this.onZoomIn,
+    required this.onZoomOut,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Botón Zoom In (+)
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onZoomIn,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8),
+                topRight: Radius.circular(8),
+              ),
+              child: Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.black87,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+          // Línea divisoria
+          Container(
+            width: 44,
+            height: 1,
+            color: Colors.grey.shade300,
+          ),
+          // Botón Zoom Out (-)
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onZoomOut,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(8),
+                bottomRight: Radius.circular(8),
+              ),
+              child: Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.remove,
+                  color: Colors.black87,
+                  size: 24,
+                ),
+              ),
             ),
           ),
         ],

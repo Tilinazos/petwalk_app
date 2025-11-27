@@ -6,7 +6,7 @@ import 'core/injection_container.dart' as di; // di = Dependency Injection
 // Importa el BLoC
 import 'features/route_optimization/presentation/bloc/route_bloc.dart';
 // Importa la pantalla de inicio
-import 'features/route_optimization/presentation/pages/input_screen.dart'; 
+import 'features/route_optimization/presentation/pages/location_selection_screen.dart'; 
 
 // 1. Inicializa el contenedor de inyección de dependencias
 Future<void> main() async {
@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         // 3. Define la pantalla de inicio
-        home: const InputScreen(), 
+        home: const LocationSelectionScreen(), 
       ),
     );
   }
