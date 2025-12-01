@@ -52,7 +52,7 @@ class _RouteParamsScreenState extends State<RouteParamsScreen> {
 
               // === SECCIÓN: TIEMPO ===
               const Text(
-                '⏰ Minutos',
+                'Minutos',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
@@ -124,7 +124,7 @@ class _RouteParamsScreenState extends State<RouteParamsScreen> {
 
               // === SECCIÓN: RITMO DE PASEO ===
               const Text(
-                '🚶 Ritmo de paseo',
+                'Ritmo de paseo',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),

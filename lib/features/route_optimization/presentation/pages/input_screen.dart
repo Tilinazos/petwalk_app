@@ -96,7 +96,7 @@ void _planRoute() {
               children: <Widget>[
                 // === SECCIÓN 1: UBICACIÓN ===
                 const Text(
-                  '📍 Ubicación de Inicio',
+                  ' Ubicación de Inicio',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
@@ -162,7 +162,7 @@ void _planRoute() {
                 
                 // Instrucciones
                 Text(
-                  '💡 Toca el mapa para cambiar la ubicación de inicio',
+                  ' Toca el mapa para cambiar la ubicación de inicio',
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontStyle: FontStyle.italic),
                 ),
                 const SizedBox(height: 10),
@@ -184,7 +184,7 @@ void _planRoute() {
 
                 // === SECCIÓN 2: TIEMPO Y RITMO ===
                 const Text(
-                  '⏰ Tiempo y Ritmo',
+                  ' Tiempo y Ritmo',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),

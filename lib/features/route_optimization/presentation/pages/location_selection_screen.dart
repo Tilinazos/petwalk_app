@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/services/session_service.dart';
 import 'route_params_screen.dart';
+import '../../../auth/presentation/pages/profile_screen.dart';
 
 class LocationSelectionScreen extends StatefulWidget {
   const LocationSelectionScreen({super.key});
@@ -61,9 +64,33 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
     _mapController.move(_mapController.camera.center, _mapController.camera.zoom - 1);
   }
 
+  void _navigateToProfile() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const ProfileScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Planifica tu Paseo'),
+        backgroundColor: Colors.amber,
+        foregroundColor: Colors.black87,
+        actions: [
+          Consumer<SessionService>(
+            builder: (context, sessionService, child) {
+              return IconButton(
+                icon: const Icon(Icons.person),
+                onPressed: _navigateToProfile,
+                tooltip: 'Perfil',
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -147,7 +174,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                 
                 // Instrucciones
                 Text(
-                  '💡 Toca el mapa para cambiar la ubicación de inicio',
+                  'Toca el mapa para cambiar la ubicación de inicio',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade700,

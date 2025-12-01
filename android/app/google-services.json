@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "164810968514",
+    "project_id": "petwalk-350f4",
+    "storage_bucket": "petwalk-350f4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164810968514:android:a0ea3b4de4f26df70f9a5b",
+        "android_client_info": {
+          "package_name": "com.example.petwalk_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQOyYkBLZr11hc7sm_Km_UzuBwuQFX1gA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164810968514:android:672f7b236995a8d30f9a5b",
+        "android_client_info": {
+          "package_name": "com.petwalk.petwalk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQOyYkBLZr11hc7sm_Km_UzuBwuQFX1gA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../../core/config/api_config.dart';
 import '../../domain/entities/route_entity.dart';
 import '../../domain/usecases/get_optimized_route.dart';
 
@@ -23,7 +24,7 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
     };
     
     final response = await client.post(
-      Uri.parse('http://10.0.2.2:8000/api/v1/routes/optimize'), 
+      Uri.parse(ApiConfig.optimizeRouteUrl), 
       headers: {'Content-Type': 'application/json'},
       body: json.encode(requestBody),
     );

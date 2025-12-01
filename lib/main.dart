@@ -1,19 +1,27 @@
 // main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 // Importa la función de inicialización de dependencias
 import 'core/injection_container.dart' as di; // di = Dependency Injection
+// Importa el servicio de sesión
+import 'core/services/session_service.dart';
 // Importa el BLoC
 import 'features/route_optimization/presentation/bloc/route_bloc.dart';
-// Importa la pantalla de inicio
-import 'features/route_optimization/presentation/pages/location_selection_screen.dart'; 
+// Importa la pantalla de ingreso de nombre
+import 'features/auth/presentation/pages/name_input_screen.dart'; 
 
-// 1. Inicializa el contenedor de inyección de dependencias
 Future<void> main() async {
-  // Asegura que los widgets de Flutter estén inicializados antes de iniciar DI
-  WidgetsFlutterBinding.ensureInitialized(); 
+  WidgetsFlutterBinding.ensureInitialized();
   
-  await di.init(); // Llama a la función init() para registrar todas las clases
+  // Inicializar Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  await di.init();
   
   runApp(const MyApp());
 }
@@ -23,22 +31,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 2. Usar MultiBlocProvider para proveer el RouteBloc
-    // Se usa sl<RouteBloc>() para obtener la instancia registrada por GetIt
     return MultiBlocProvider(
       providers: [
         BlocProvider(
           create: (_) => di.sl<RouteBloc>(),
         ),
       ],
-      child: MaterialApp(
-        title: 'PetWalk App',
-        theme: ThemeData(
-          primarySwatch: Colors.amber, // El color principal de tu UI
-          visualDensity: VisualDensity.adaptivePlatformDensity,
+      child: ChangeNotifierProvider(
+        create: (_) => SessionService(),
+        child: MaterialApp(
+          title: 'PetWalk App',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primarySwatch: Colors.amber,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+          ),
+          home: const NameInputScreen(),
         ),
-        // 3. Define la pantalla de inicio
-        home: const LocationSelectionScreen(), 
       ),
     );
   }

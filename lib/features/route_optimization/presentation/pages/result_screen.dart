@@ -15,6 +15,7 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   final MapController _mapController = MapController();
   bool _showMetrics = true; // Para mostrar/ocultar el panel
+  bool _walkStarted = false; // Estado para controlar si el paseo está activo
 
   List<LatLng> get _routePoints {
     return widget.route.route
@@ -197,16 +198,40 @@ class _ResultScreenState extends State<ResultScreen> {
             ],
           ),
 
-          // === BOTÓN DE REGRESO (Esquina superior izquierda) ===
-          Positioned(
-            top: 8,
-            left: 8,
-            child: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
+          // === BOTÓN DE REGRESO / INICIAR OTRO RECORRIDO ===
+          if (!_walkStarted)
+            Positioned(
+              top: 8,
+              left: 8,
+              child: IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.arrow_back, color: Colors.black87),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+
+          // === BOTÓN INICIAR OTRO RECORRIDO (Cuando el paseo está activo) ===
+          if (_walkStarted)
+            Positioned(
+              top: 8,
+              left: 8,
+              child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.2),
@@ -215,58 +240,89 @@ class _ResultScreenState extends State<ResultScreen> {
                     ),
                   ],
                 ),
-                child: const Icon(Icons.arrow_back, color: Colors.black87),
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-
-          // === CONTADOR DE PUNTOS (Esquina superior izquierda) ===
-          Positioned(
-            top: 16,
-            left: 60,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.route, color: Colors.green.shade700, size: 20),
-                  const SizedBox(width: 6),
-                  Text(
-                    '${routePoints.length} puntos',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.add_location_alt, 
+                               color: Colors.amber.shade700, 
+                               size: 20),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Iniciar otro recorrido',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+
+          // === CONTADOR DE PUNTOS (Esquina superior izquierda) ===
+          if (!_walkStarted)
+            Positioned(
+              top: 16,
+              left: 60,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.route, color: Colors.green.shade700, size: 20),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${routePoints.length} puntos',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
           // === CONTROLES DE ZOOM ===
-          Positioned(
-            top: 16,
-            right: 16,
-            child: _ZoomControls(
-              onZoomIn: _zoomIn,
-              onZoomOut: _zoomOut,
+          if (!_walkStarted)
+            Positioned(
+              top: 16,
+              right: 16,
+              child: _ZoomControls(
+                onZoomIn: _zoomIn,
+                onZoomOut: _zoomOut,
+              ),
             ),
-          ),
 
           // === PANEL DE MÉTRICAS (Parte inferior) ===
-          if (_showMetrics)
+          if (_showMetrics && !_walkStarted)
             Positioned(
               bottom: 0,
               left: 0,
@@ -431,13 +487,10 @@ class _ResultScreenState extends State<ResultScreen> {
                           flex: 2,
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              // Aquí podrías iniciar navegación GPS real
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('🐾 ¡A pasear! Función de navegación próximamente...'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
+                              setState(() {
+                                _walkStarted = true;
+                                _showMetrics = false;
+                              });
                             },
                             icon: const Icon(Icons.pets),
                             label: const Text('¡COMENZAR PASEO!'),
